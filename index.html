@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Churn Prediction Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 900px;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group input:hover,
+        .form-group select:hover {
+            border-color: #667eea;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            transform: scale(1.2);
+            accent-color: #667eea;
+        }
+
+        .predict-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            margin: 20px 0;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .predict-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .predict-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-high-risk {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .result-low-risk {
+            background: linear-gradient(135deg, #51cf66, #40c057);
+            color: white;
+        }
+
+        .result-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .result-probability {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .result-recommendations {
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .result-recommendations h4 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .result-recommendations ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .result-recommendations li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .result-recommendations li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .feature-importance {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature-importance h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .feature-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .feature-name {
+            width: 120px;
+            font-size: 0.9em;
+            color: #34495e;
+            font-weight: 500;
+        }
+
+        .feature-bar-bg {
+            flex: 1;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin: 0 10px;
+            overflow: hidden;
+        }
+
+        .feature-bar-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .feature-value {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            width: 40px;
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Customer Churn Predictor</h1>
+            <p>Predict customer churn probability using advanced machine learning</p>
+        </div>
+
+        <form id="churnForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="creditScore">Credit Score</label>
+                    <input type="number" id="creditScore" name="creditScore" min="300" max="850" value="650" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="geography">Geography</label>
+                    <select id="geography" name="geography" required>
+                        <option value="">Select Country</option>
+                        <option value="0">France</option>
+                        <option value="1">Germany</option>
+                        <option value="2">Spain</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender" name="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="0">Female</option>
+                        <option value="1">Male</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" name="age" min="18" max="100" value="40" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="tenure">Tenure (Years)</label>
+                    <input type="number" id="tenure" name="tenure" min="0" max="20" value="5" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="balance">Account Balance</label>
+                    <input type="number" id="balance" name="balance" min="0" step="0.01" value="50000" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="numProducts">Number of Products</label>
+                    <input type="number" id="numProducts" name="numProducts" min="1" max="4" value="2" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="estimatedSalary">Estimated Salary</label>
+                    <input type="number" id="estimatedSalary" name="estimatedSalary" min="0" step="0.01" value="75000" required>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasCrCard" name="hasCrCard">
+                        <label for="hasCrCard">Has Credit Card</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="isActiveMember" name="isActiveMember" checked>
+                        <label for="isActiveMember">Is Active Member</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="predict-btn" id="predictBtn">
+                <span id="btnText">🔮 Predict Churn Risk</span>
+            </button>
+        </form>
+
+        <div id="errorMessage" class="error-message">
+            Something went wrong. Please check your backend server is running.
+        </div>
+
+        <div id="resultContainer" class="result-container">
+            <div class="result-title" id="resultTitle"></div>
+            <div class="result-probability" id="resultProbability"></div>
+            <div class="result-recommendations" id="resultRecommendations"></div>
+            <div class="feature-importance" id="featureImportance" style="display: none;">
+                <h4>Key Risk Factors</h4>
+                <div id="featureList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('churnForm');
+        const resultContainer = document.getElementById('resultContainer');
+        const errorMessage = document.getElementById('errorMessage');
+        const predictBtn = document.getElementById('predictBtn');
+        const btnText = document.getElementById('btnText');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Show loading state
+            predictBtn.disabled = true;
+            btnText.innerHTML = '<span class="loading"></span>Analyzing...';
+            resultContainer.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            // Collect form data
+            const formData = new FormData(form);
+            const data = {
+                credit_score: parseInt(formData.get('creditScore')),
+                geography: parseInt(formData.get('geography')),
+                gender: parseInt(formData.get('gender')),
+                age: parseInt(formData.get('age')),
+                tenure: parseInt(formData.get('tenure')),
+                balance: parseFloat(formData.get('balance')),
+                num_products: parseInt(formData.get('numProducts')),
+                has_cr_card: formData.get('hasCrCard') ? 1 : 0,
+                is_active_member: formData.get('isActiveMember') ? 1 : 0,
+                estimated_salary: parseFloat(formData.get('estimatedSalary'))
+            };
+
+            try {
+                // Make API call to your Flask backend
+                const response = await fetch('http://localhost:5000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const result = await response.json();
+                displayResult(result);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage.style.display = 'block';
+            } finally {
+                // Reset button
+                predictBtn.disabled = false;
+                btnText.innerHTML = '🔮 Predict Churn Risk';
+            }
+        });
+
+        function displayResult(result) {
+            const { prediction, probability, recommendations, feature_importance } = result;
+            const isHighRisk = prediction === 1;
+            
+            resultContainer.className = 'result-container ' + (isHighRisk ? 'result-high-risk' : 'result-low-risk');
+            
+            document.getElementById('resultTitle').textContent = 
+                isHighRisk ? '⚠️ High Churn Risk' : '✅ Low Churn Risk';
+            
+            document.getElementById('resultProbability').textContent = 
+                `Churn Probability: ${(probability * 100).toFixed(1)}%`;
+            
+            const recommendationsHtml = `
+                <h4>Recommendations:</h4>
+                <ul>
+                    ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                </ul>
+            `;
+            document.getElementById('resultRecommendations').innerHTML = recommendationsHtml;
+            
+            // Display feature importance if available
+            if (feature_importance) {
+                displayFeatureImportance(feature_importance);
+            }
+            
+            resultContainer.style.display = 'block';
+        }
+
+        function displayFeatureImportance(features) {
+            const featureList = document.getElementById('featureList');
+            const maxImportance = Math.max(...Object.values(features));
+            
+            const featureHtml = Object.entries(features)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 5)
+                .map(([name, importance]) => {
+                    const percentage = ((importance / maxImportance) * 100);
+                    return `
+                        <div class="feature-bar">
+                            <div class="feature-name">${formatFeatureName(name)}</div>
+                            <div class="feature-bar-bg">
+                                <div class="feature-bar-fill" style="width: ${percentage}%"></div>
+                            </div>
+                            <div class="feature-value">${(importance * 100).toFixed(1)}%</div>
+                        </div>
+                    `;
+                }).join('');
+            
+            featureList.innerHTML = featureHtml;
+            document.getElementById('featureImportance').style.display = 'block';
+        }
+
+        function formatFeatureName(name) {
+            const nameMap = {
+                'age': 'Age',
+                'balance': 'Balance',
+                'credit_score': 'Credit Score',
+                'estimated_salary': 'Salary',
+                'num_products': 'Products',
+                'tenure': 'Tenure',
+                'geography': 'Geography',
+                'gender': 'Gender',
+                'has_cr_card': 'Credit Card',
+                'is_active_member': 'Active Status'
+            };
+            return nameMap[name] || name;
+        }
+
+        // Add some interactive animations
+        document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+            });
+            
+            element.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>
