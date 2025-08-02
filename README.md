@@ -33,15 +33,7 @@ Customer churn is a critical metric for businesses, especially in subscription-b
 
 ## 📁 Project Structure
 
-CHURN-PREDICTOR/
-├── app.py                    # Flask backend
-├── index.html               # Frontend HTML page
-├── churn_model.pkl          # Trained ML model
-├── Churn_Modelling.csv      # Dataset
-├── requirements.txt         # Python dependencies
-├── README.md               # Project documentation
-└── venv/                   # Virtual environment (excluded in .gitignore)
-
+![alt text](image-2.png)
 ---
 
 ## ⚙️ How to Run the Project Locally
