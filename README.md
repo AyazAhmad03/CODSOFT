@@ -38,7 +38,7 @@ Customer churn is a critical metric for businesses, especially in subscription-b
 
 ## ⚙️ How to Run the Project Locally
 
-### 1. Clone the Repository
+1. Clone the Repository
 
 ```bash
 git clone https://github.com/YOUR-USERNAME/codsoft.git
