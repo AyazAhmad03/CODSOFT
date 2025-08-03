@@ -41,7 +41,7 @@ Customer churn is a critical metric for businesses, especially in subscription-b
 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/codsoft.git
+git clone https://github.com/AyazAhmad03/codsoft.git
 cd codsoft
 
 2. Create and Activate Virtual Environment
