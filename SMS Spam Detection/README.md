@@ -1,58 +1,66 @@
-# 📉 Customer Churn Prediction – End-to-End ML Web App
+# 📵 Spam SMS Detection Web App
 
-This is an end-to-end machine learning web application that predicts whether a customer is likely to churn based on various features. The model is trained using a dataset from Kaggle and deployed through a Flask backend with a clean frontend built using HTML, CSS, and JavaScript.
+A simple and effective machine learning web application that detects whether an SMS message is **Spam** or **Not Spam** using a **Support Vector Machine (SVM)** classifier. The app features a clean and responsive GUI powered by **Streamlit**.
 
 ---
 
 ## 🔍 Project Overview
 
-Customer churn is a critical metric for businesses, especially in subscription-based services. This project uses machine learning to predict churn so businesses can take preventive measures and improve customer retention.
+Unwanted spam messages are annoying and potentially dangerous. This project aims to build a machine learning model that can accurately classify SMS messages to help users filter out spam.
+
+The app was developed using Python and several popular data science libraries, with a Streamlit-based web interface for easy interaction.
 
 ---
 
 ## 💡 Features
 
-- 🔬 Predicts customer churn using trained ML model
-- 🎨 Interactive and responsive web UI
-- ⚙️ Flask-powered backend for real-time prediction
-- 📊 Model built with scikit-learn
-- 🧠 Dataset sourced from [Kaggle](https://www.kaggle.com/)
+- Real-time spam message detection
+- Clean and interactive GUI built using Streamlit
+- Data visualization for exploratory analysis
+- TF-IDF vectorization for converting text into numerical form
+- SVM (`LinearSVC`) classifier for high-performance prediction
 
 ---
 
 ## 🛠 Tech Stack
 
-| Layer     | Technologies Used              |
-|-----------|-------------------------------|
-| Frontend  | HTML, CSS, JavaScript          |
-| Backend   | Python, Flask                  |
-| ML Model  | scikit-learn, pandas, NumPy    |
-| Tools     | VS Code, Git, GitHub           |
+**Frontend / GUI**:  
+- Streamlit
+
+**Backend / ML**:  
+- pandas  
+- scikit-learn  
+- seaborn  
+- matplotlib  
+- NumPy  
+- Support Vector Machine (`LinearSVC`)
 
 ---
 
 ## 📁 Project Structure
 
-![alt text](image-2.png)
+![alt text](image.png)
+
+
+---
+
+## 📊 Dataset Info
+
+- **Source**: SMS Spam Collection Dataset (Kaggle)
+- **Features**:
+  - `label`: spam or ham (not spam)
+  - `message`: actual SMS content
+
 ---
 
 ## ⚙️ How to Run the Project Locally
 
-1. Clone the Repository
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/codsoft.git
-cd codsoft
+git clone https://github.com/AyazAhmad03/CODSOFT.git
+cd spam-sms-detector
 
-2. Create and Activate Virtual Environment
-python -m venv venv
-# Windows
-venv\Scripts\activate
-# macOS/Linux
-source venv/bin/activate
 
-3. Install Requirements
-pip install -r requirements.txt
-
-4. Run the App
-python app.py
+2.Run the Streamlit App
+streamlit run app.py
